@@ -10,5 +10,3 @@
 [[tls.certificates]]
   certFile = "/etc/traefik/certs/traefik.localhost.cert"
   keyFile = "/etc/traefik/certs/traefik.localhost.key"
-
-  asdf
