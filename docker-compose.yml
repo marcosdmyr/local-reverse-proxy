@@ -1,0 +1,60 @@
+version: "3.3"
+
+services:
+
+  traefik:
+    image: "traefik:latest"
+    command:
+      - --api
+      - --accesslog
+      - --entrypoints.web.address=:80
+      - --entrypoints.websecure.address=:443
+      - --log.level=info
+        # - --metrics
+        # - --metrics.prometheus
+      - --providers.docker
+      - --providers.file.filename=/etc/traefik/certs/certificates.toml
+      - --providers.file.watch=true
+        # - --tracing
+        # - --tracing.jaeger
+    labels:
+      # Dashboard
+      - "traefik.http.routers.traefik.rule=Host(`traefik.localhost`)"
+      - "traefik.http.routers.traefik.service=api@internal"
+      - "traefik.http.routers.traefik.entrypoints=websecure"
+      - "traefik.http.routers.traefik.tls=true"
+
+      # global redirect to https
+      - "traefik.http.routers.http-catchall.rule=hostregexp(`{host:.+}`)"
+      - "traefik.http.routers.http-catchall.entrypoints=web"
+      - "traefik.http.routers.http-catchall.middlewares=redirect-to-https"
+
+      # middleware redirect
+      - "traefik.http.middlewares.redirect-to-https.redirectscheme.scheme=https"
+    networks:
+      - reverse-proxy
+      - default
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+      - "./certs:/etc/traefik/certs:ro"
+
+  # whoami service example, to try it:
+  #  * create whoami.localhost certs
+  #  * update certs/certificates.toml
+  #
+  # whoami:
+  #   image: containous/whoami:v1.3.0
+  #   labels:
+  #     - "traefik.http.routers.whoami.rule=Host(`whoami.localhost`)"
+  #     - "traefik.http.routers.whoami.entrypoints=websecure"
+  #     - "traefik.http.routers.whoami.tls=true"
+  #   networks:
+  #     - reverse-proxy
+  #     - default
+
+networks:
+  reverse-proxy:
+    external: true

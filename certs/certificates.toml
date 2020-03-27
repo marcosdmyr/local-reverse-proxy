@@ -1,0 +1,14 @@
+# for each service
+#   run mkcert -cert-file certs/traefik.localhost.cert -key-file certs/traefik.localhost.key "traefik.localhost" "*.localhost" localhost 127.0.0.1 ::1
+#   add a block like this
+#
+#     [[tls.certificates]]
+#       certFile = "/etc/traefik/certs/your-service.localhost.cert"
+#       keyFile = "/etc/traefik/certs/your-service.localhost.key"
+
+# traefik.localhost certs
+[[tls.certificates]]
+  certFile = "/etc/traefik/certs/traefik.localhost.cert"
+  keyFile = "/etc/traefik/certs/traefik.localhost.key"
+
+  asdf
